@@ -8,6 +8,8 @@
 
 #include "user.h"
 
+#include <QMessageBox>
+
 void MainWindow::init()
 {
     db.setDriver(DRIVER);
@@ -27,16 +29,22 @@ void MainWindow::createUser()
     user->setUsername("admin");
     user->setPassword("123456");
     db.users()->append(user);
-    db.saveChanges();
+    auto count = db.saveChanges();
+
+    if (count)
+        QMessageBox::information(this, "Create user", "User created successfully");
 }
 
 void MainWindow::deleteUser(QString name)
 {
-//    auto userToDelete = db.users()
-//            ->query()
-//            ->setWhere(User::username() == name)
-//            .remove();
-//    db.saveChanges();
+    auto userToDelete = db.users()
+            ->query()
+            ->setWhere(User::usernameField() == name)
+            ->remove();
+    db.saveChanges();
+
+    if (userToDelete)
+        QMessageBox::information(this, "Create user", "User deleted successfully");
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -44,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    qRegisterMetaType<User*>();
+    qRegisterMetaType<CompanyEmployees*>();
 }
 
 MainWindow::~MainWindow()
@@ -60,4 +71,9 @@ void MainWindow::on_pushButton_connect_clicked()
 void MainWindow::on_pushButton_create_clicked()
 {
     createUser();
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    deleteUser("admin");
 }
